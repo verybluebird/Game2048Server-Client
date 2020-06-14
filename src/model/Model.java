@@ -1,8 +1,5 @@
 package model;
 
-import actions.Move;
-import entity.Tile;
-
 import java.util.*;
 
 
@@ -27,8 +24,6 @@ public class Model {
         }
     }
 
-
-
     //будет возвращать true, если вес плиток в массиве gameTiles отличается от веса плиток в верхнем массиве стека previousStates
     public boolean hasBoardChanged() {
         Tile[][] clone = previousStates.peek();
@@ -40,8 +35,6 @@ public class Model {
         }
         return false;
     }
-
-
 
     public void saveState(Tile[][] tiles) {
         Tile[][] clone = new Tile[4][4];
