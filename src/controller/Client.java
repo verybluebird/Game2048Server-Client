@@ -7,15 +7,14 @@ import java.io.*;
 import java.util.*;
 
 
-//The Client that can be run as a console
+
 public class Client  {
     Player player;
-    // notification
+
     private String notif = " *** ";
 
-    // for I/O
-    private ObjectInputStream sInput;		// to read from the socket
-    private ObjectOutputStream sOutput;		// to write on the socket
+    private ObjectInputStream sInput;		// читать из сокета
+    private ObjectOutputStream sOutput;		// писать в сокет
     private Socket socket;					// socket object
 
     private String server, username;	// server and username
@@ -206,6 +205,8 @@ public class Client  {
             }
             else if(msg.equalsIgnoreCase("START")) {
                 client.sendMessage(new ChatMessage(ChatMessage.START, ""));
+
+
             }
             // regular text message
             else {
@@ -217,21 +218,22 @@ public class Client  {
         // client completed its job. disconnect client.
         client.disconnect();
     }
-    public void run_the_game(Client client){
+    public String run_the_game(){
         player.controller.getView().run();
         while (!player.controller.getView().isGameEnded){
             String strI = "" +
                     player.get_player_score();
 
-            client.sendMessage(new ChatMessage(ChatMessage.MESSAGE, strI));
+            return strI;
         }
+        return null;
     }
     /*
      * a class that waits for the message from the server
      */
     class ListenFromServer extends Thread {
 
-        public void run(Client client) {
+        public void run() {
             while(true) {
                 try {
                     // read the message form the input datastream
@@ -240,7 +242,7 @@ public class Client  {
                     System.out.println(msg);
                     if (msg.equalsIgnoreCase(" Starting the game."))
                     {
-                        run_the_game(client);
+                        run_the_game();
                     }
                     System.out.print("> ");
                 }

@@ -12,8 +12,6 @@ import java.util.Date;
 
 
 public class Server {
-    Player player_1 = new Player("Host");
-    Player player_2 = new Player("Guest");
     // a unique ID for each connection
     private static int uniqueId;
     // an ArrayList to keep the list of the Client
@@ -43,10 +41,7 @@ public class Server {
     }
 
     public void rule_the_game() {
-        if (PlayersWantToPlay==2) {
 
-
-        }
     }
 
     public void start() {
@@ -72,6 +67,11 @@ public class Server {
                 //add this client to arraylist
                 al.add(t);
                 t.start();
+                if (PlayersWantToPlay == 2) {
+                    t.writeMsg("Start the game");
+
+
+                }
 
             }
             // try to stop the server
@@ -117,9 +117,11 @@ public class Server {
         ChatMessage cm;
         // timestamp
         String date;
-
+        public int score1=0;
+        public int score2=0;
         // Constructor
         ClientThread(Socket socket) {
+
             // a unique id
             id = ++uniqueId;
             this.socket = socket;
@@ -188,11 +190,36 @@ public class Server {
                     case ChatMessage.START:
                         display(username + " wants to play.");
                         PlayersWantToPlay++;
-                        if(PlayersWantToPlay==2) {
+                        if (PlayersWantToPlay == 2) {
                             writeMsg(sdf.format(new Date()) + " Starting the game.");
-                        } else if (PlayersWantToPlay<2){
+                        } else if (PlayersWantToPlay < 2) {
                             writeMsg(sdf.format(new Date()) + " Waiting for one more player.");
                         }
+                        break;
+                    case ChatMessage.SCORE:
+                        boolean confirmation1 = broadcast(username + "score is: " + message);
+                        if (!confirmation1) {
+                            String msg = notif + "Sorry. No such user exists." + notif;
+                            writeMsg(msg);
+                        }
+                        if (score1==0){
+                            try {
+                                score1 = Integer.parseInt(message);
+                            }
+                            catch (NumberFormatException e)
+                            {
+                                score1 = 0;
+                            }
+                        } else if (score2==0){
+                            try {
+                                score1 = Integer.parseInt(message);
+                            }
+                            catch (NumberFormatException e)
+                            {
+                                score1 = 0;
+                            }
+                        }
+                        break;
                 }
             }
             // if out of the loop then disconnected and remove from client list
