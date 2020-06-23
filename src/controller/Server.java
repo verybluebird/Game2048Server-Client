@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 
@@ -24,7 +25,9 @@ public class Server {
     private boolean keepGoing;
     // notification
     private String notif = " *** ";
-    private static int PlayersWantToPlay = 0;
+
+
+
 
     public Server(int port) {
         // the port
@@ -40,9 +43,7 @@ public class Server {
         System.out.println(time);
     }
 
-    public void rule_the_game() {
 
-    }
 
     public void start() {
         keepGoing = true;
@@ -67,12 +68,6 @@ public class Server {
                 //add this client to arraylist
                 al.add(t);
                 t.start();
-                if (PlayersWantToPlay == 2) {
-                    t.writeMsg("Start the game");
-
-
-                }
-
             }
             // try to stop the server
             try {
@@ -117,8 +112,10 @@ public class Server {
         ChatMessage cm;
         // timestamp
         String date;
-        public int score1=0;
-        public int score2=0;
+        public int score = 0;
+
+
+
         // Constructor
         ClientThread(Socket socket) {
 
@@ -188,38 +185,38 @@ public class Server {
                         }
                         break;
                     case ChatMessage.START:
-                        display(username + " wants to play.");
-                        PlayersWantToPlay++;
-                        if (PlayersWantToPlay == 2) {
-                            writeMsg(sdf.format(new Date()) + " Starting the game.");
-                        } else if (PlayersWantToPlay < 2) {
-                            writeMsg(sdf.format(new Date()) + " Waiting for one more player.");
-                        }
+                        display(username + " is to playing.");
+                        writeMsg(sdf.format(new Date()) + " Starting the game.");
+
                         break;
                     case ChatMessage.SCORE:
-                        boolean confirmation1 = broadcast(username + "score is: " + message);
+                        boolean confirmation1 = broadcast(username + " score is: " + message);
                         if (!confirmation1) {
                             String msg = notif + "Sorry. No such user exists." + notif;
                             writeMsg(msg);
                         }
-                        if (score1==0){
+                        if (score == 0) {
                             try {
-                                score1 = Integer.parseInt(message);
-                            }
-                            catch (NumberFormatException e)
-                            {
-                                score1 = 0;
-                            }
-                        } else if (score2==0){
-                            try {
-                                score1 = Integer.parseInt(message);
-                            }
-                            catch (NumberFormatException e)
-                            {
-                                score1 = 0;
+                                score = Integer.parseInt(message);
+                            } catch (NumberFormatException e) {
+                                score = 0;
                             }
                         }
                         break;
+                    case ChatMessage.WHOISWIN:
+                    if(al.size()==2) {
+                        if (al.get(0).score > al.get(1).score) {
+                            String msg = al.get(1).username + " is win";
+                            writeMsg(msg);
+                        } else if (al.get(1).score < al.get(2).score) {
+                            String msg = al.get(2).username + " is win";
+                            writeMsg(msg);
+                        } else {
+                            String msg = al.get(2).username + " is win";
+                            writeMsg(msg);
+                        }
+                    }
+
                 }
             }
             // if out of the loop then disconnected and remove from client list

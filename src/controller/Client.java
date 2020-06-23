@@ -9,7 +9,7 @@ import java.util.*;
 
 
 public class Client  {
-    Player player;
+    private static Player player;
 
     private String notif = " *** ";
 
@@ -40,6 +40,12 @@ public class Client  {
         this.port = port;
         this.username = username;
         this.player=new Player(username);
+    }
+    public static String run_the_game(){
+        player.controller.getView().run();
+        while (!player.controller.getView().isGameEnded){  }
+        String strI = "" + player.get_player_score();
+        return strI;
     }
 
     /*
@@ -181,14 +187,14 @@ public class Client  {
         if(!client.start())
             return;
 
-        System.out.println("\nHello.! Welcome to the game 2048.");
+        System.out.println("\nHello! Welcome to the game 2048.");
         System.out.println("Instructions:");
         System.out.println("1. Simply type the message to send broadcast to all active clients");
         System.out.println("2. Type '@username<space>yourmessage' without quotes to send message to desired client");
         System.out.println("3. Type 'WHOISIN' without quotes to see list of active clients");
         System.out.println("4. Type 'LOGOUT' without quotes to logoff from server");
         System.out.println("4. Type 'START' without quotes to start the game");
-
+        System.out.println("4. Type 'WHOISWIN' without quotes to know have won the game");
         // infinite loop to get the input from the user
         while(true) {
             System.out.print("> ");
@@ -203,9 +209,15 @@ public class Client  {
             else if(msg.equalsIgnoreCase("WHOISIN")) {
                 client.sendMessage(new ChatMessage(ChatMessage.WHOISIN, ""));
             }
+            // message to start the game
             else if(msg.equalsIgnoreCase("START")) {
                 client.sendMessage(new ChatMessage(ChatMessage.START, ""));
+                String score = run_the_game();
+                client.sendMessage(new ChatMessage(ChatMessage.SCORE, score));
 
+            }
+            else if(msg.equalsIgnoreCase("WHOISWIN")) {
+                client.sendMessage(new ChatMessage(ChatMessage.WHOISWIN,""));
 
             }
             // regular text message
@@ -218,16 +230,7 @@ public class Client  {
         // client completed its job. disconnect client.
         client.disconnect();
     }
-    public String run_the_game(){
-        player.controller.getView().run();
-        while (!player.controller.getView().isGameEnded){
-            String strI = "" +
-                    player.get_player_score();
 
-            return strI;
-        }
-        return null;
-    }
     /*
      * a class that waits for the message from the server
      */
@@ -240,10 +243,6 @@ public class Client  {
                     String msg = (String) sInput.readObject();
                     // print the message
                     System.out.println(msg);
-                    if (msg.equalsIgnoreCase(" Starting the game."))
-                    {
-                        run_the_game();
-                    }
                     System.out.print("> ");
                 }
                 catch(IOException e) {
