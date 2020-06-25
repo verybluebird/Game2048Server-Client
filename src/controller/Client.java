@@ -7,18 +7,18 @@ import java.io.*;
 import java.util.*;
 
 
-
-public class Client  {
+public class Client {
     private static Player player;
+    private static Controller controller;
 
     private String notif = " *** ";
 
-    private ObjectInputStream sInput;		// читать из сокета
-    private ObjectOutputStream sOutput;		// писать в сокет
-    private Socket socket;					// socket object
+    private ObjectInputStream sInput;        // читать из сокета
+    private ObjectOutputStream sOutput;        // писать в сокет
+    private Socket socket;                    // socket object
 
-    private String server, username;	// server and username
-    private int port;					//port
+    private String server, username;    // server and username
+    private int port;                    //port
 
     public String getUsername() {
         return username;
@@ -39,13 +39,17 @@ public class Client  {
         this.server = server;
         this.port = port;
         this.username = username;
-        this.player=new Player(username);
+        this.player = new Player(username);
     }
-    public static String run_the_game(){
+
+    public static String run_the_game() {
+
+        int s = 0;
         player.controller.getView().run();
-        while (!player.controller.getView().isGameEnded){  }
-        String strI = "" + player.get_player_score();
-        return strI;
+        while (!player.controller.getView().isGameEnded) {
+            s = player.get_player_score();
+        }
+        return "" + s;
     }
 
     /*
@@ -57,7 +61,7 @@ public class Client  {
             socket = new Socket(server, port);
         }
         // exception handler if it failed
-        catch(Exception ec) {
+        catch (Exception ec) {
             display("Error connectiong to server:" + ec);
             return false;
         }
@@ -67,12 +71,10 @@ public class Client  {
 
 
         /* Creating both Data Stream */
-        try
-        {
-            sInput  = new ObjectInputStream(socket.getInputStream());
+        try {
+            sInput = new ObjectInputStream(socket.getInputStream());
             sOutput = new ObjectOutputStream(socket.getOutputStream());
-        }
-        catch (IOException eIO) {
+        } catch (IOException eIO) {
             display("Exception creating new Input/output Streams: " + eIO);
             return false;
         }
@@ -81,11 +83,9 @@ public class Client  {
         new ListenFromServer().start();
         // Send our username to the server this is the only message that we
         // will send as a String. All other messages will be ChatMessage objects
-        try
-        {
+        try {
             sOutput.writeObject(username);
-        }
-        catch (IOException eIO) {
+        } catch (IOException eIO) {
             display("Exception doing login : " + eIO);
             disconnect();
             return false;
@@ -109,8 +109,7 @@ public class Client  {
     void sendMessage(ChatMessage msg) {
         try {
             sOutput.writeObject(msg);
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             display("Exception writing to server: " + e);
         }
     }
@@ -121,19 +120,20 @@ public class Client  {
      */
     private void disconnect() {
         try {
-            if(sInput != null) sInput.close();
+            if (sInput != null) sInput.close();
+        } catch (Exception e) {
         }
-        catch(Exception e) {}
         try {
-            if(sOutput != null) sOutput.close();
+            if (sOutput != null) sOutput.close();
+        } catch (Exception e) {
         }
-        catch(Exception e) {}
-        try{
-            if(socket != null) socket.close();
+        try {
+            if (socket != null) socket.close();
+        } catch (Exception e) {
         }
-        catch(Exception e) {}
 
     }
+
     /*
      * To start the Client in console mode use one of the following command
      * > java Client
@@ -156,7 +156,7 @@ public class Client  {
         userName = scan.nextLine();
 
         // different case according to the length of the arguments.
-        switch(args.length) {
+        switch (args.length) {
             case 3:
                 // for > javac Client username portNumber serverAddr
                 serverAddress = args[2];
@@ -164,8 +164,7 @@ public class Client  {
                 // for > javac Client username portNumber
                 try {
                     portNumber = Integer.parseInt(args[1]);
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     System.out.println("Invalid port number.");
                     System.out.println("Usage is: > java Client [username] [portNumber] [serverAddress]");
                     return;
@@ -184,7 +183,7 @@ public class Client  {
         // create the Client object
         Client client = new Client(serverAddress, portNumber, userName);
         // try to connect to the server and return if not connected
-        if(!client.start())
+        if (!client.start())
             return;
 
         System.out.println("\nHello! Welcome to the game 2048.");
@@ -196,28 +195,27 @@ public class Client  {
         System.out.println("4. Type 'START' without quotes to start the game");
         System.out.println("4. Type 'WHOISWIN' without quotes to know have won the game");
         // infinite loop to get the input from the user
-        while(true) {
+        while (true) {
             System.out.print("> ");
             // read message from user
             String msg = scan.nextLine();
             // logout if message is LOGOUT
-            if(msg.equalsIgnoreCase("LOGOUT")) {
+            if (msg.equalsIgnoreCase("LOGOUT")) {
                 client.sendMessage(new ChatMessage(ChatMessage.LOGOUT, ""));
                 break;
             }
             // message to check who are present in chatroom
-            else if(msg.equalsIgnoreCase("WHOISIN")) {
+            else if (msg.equalsIgnoreCase("WHOISIN")) {
                 client.sendMessage(new ChatMessage(ChatMessage.WHOISIN, ""));
             }
             // message to start the game
-            else if(msg.equalsIgnoreCase("START")) {
+            else if (msg.equalsIgnoreCase("START")) {
                 client.sendMessage(new ChatMessage(ChatMessage.START, ""));
                 String score = run_the_game();
                 client.sendMessage(new ChatMessage(ChatMessage.SCORE, score));
 
-            }
-            else if(msg.equalsIgnoreCase("WHOISWIN")) {
-                client.sendMessage(new ChatMessage(ChatMessage.WHOISWIN,""));
+            } else if (msg.equalsIgnoreCase("WHOISWIN")) {
+                client.sendMessage(new ChatMessage(ChatMessage.WHOISWIN, ""));
 
             }
             // regular text message
@@ -237,19 +235,17 @@ public class Client  {
     class ListenFromServer extends Thread {
 
         public void run() {
-            while(true) {
+            while (true) {
                 try {
                     // read the message form the input datastream
                     String msg = (String) sInput.readObject();
                     // print the message
                     System.out.println(msg);
                     System.out.print("> ");
-                }
-                catch(IOException e) {
+                } catch (IOException e) {
                     display(notif + "Server has closed the connection: " + e + notif);
                     break;
-                }
-                catch(ClassNotFoundException ignored) {
+                } catch (ClassNotFoundException ignored) {
                 }
             }
         }

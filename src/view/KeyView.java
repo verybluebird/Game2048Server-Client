@@ -10,14 +10,17 @@ public class KeyView extends KeyAdapter {
     Model model;
     View view;
     private static final int WINNING_TILE = 2048;
-    public KeyView(Controller controller){
-        this.view=controller.getView();
-        this.model=controller.getModel();
+
+    public KeyView(Controller controller) {
+        this.view = controller.getView();
+        this.model = controller.getModel();
     }
+
     public void resetGame() {
         model.score = 0;
         view.isGameLost = false;
         view.isGameWon = false;
+        view.isGameEnded = false;
         model.resetGameTiles();
     }
 
@@ -25,7 +28,11 @@ public class KeyView extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
             resetGame();
-        if (!model.canMove()) view.isGameLost = true;
+        if (!model.canMove()) {
+            view.isGameLost = true;
+            view.isGameEnded = true;
+
+        }
         if (!view.isGameLost && !view.isGameWon) {
             if (e.getKeyCode() == KeyEvent.VK_LEFT) model.left();
             if (e.getKeyCode() == KeyEvent.VK_RIGHT) model.right();
@@ -34,7 +41,11 @@ public class KeyView extends KeyAdapter {
             if (e.getKeyCode() == KeyEvent.VK_Z) model.rollback(); //отмена хода
 
         }
-        if (model.maxTile == WINNING_TILE) view.isGameWon = true;
+        if (model.maxTile == WINNING_TILE) {
+            view.isGameWon = true;
+            view.isGameEnded = true;
+        }
+
         view.repaint();
     }
 

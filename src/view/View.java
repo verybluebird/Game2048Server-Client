@@ -2,6 +2,7 @@ package view;
 
 import controller.Controller;
 import model.Tile;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,6 +14,7 @@ public class View extends JPanel {
 
     ImageIcon img = new ImageIcon("src/resources/2048.png");
     private static final Color BG_COLOR = new Color(0xC5BDD5);
+    private static final Color END_COLOR = new Color(0x797482);
     private static final String FONT_NAME = "Arial";
     private static final int TILE_SIZE = 96;
     private static final int TILE_MARGIN = 11;//ширина между плитками
@@ -48,12 +50,20 @@ public class View extends JPanel {
         g.drawString("Score: " + controller.getScore(), 140, 465);
 
         if (isGameWon) {
-            isGameEnded=true;
-            JOptionPane.showMessageDialog(this, "You've won!");
+            g.setColor(END_COLOR);
+            g.fillRect(70, 190, 270, 70);
+            isGameEnded = true;
+            g.setColor(BG_COLOR);
+            g.drawString("You've won!", 100, 232);
+
 
         } else if (isGameLost) {
-            isGameEnded=true;
-            JOptionPane.showMessageDialog(this, "You've lost :(");
+            g.setColor(END_COLOR);
+            g.fillRect(70, 190, 270, 70);
+            isGameEnded = true;
+            g.setColor(BG_COLOR);
+            g.drawString("You've lost :(", 100, 232);
+//            JOptionPane.showMessageDialog(this, "You've lost :(");
 
         }
     }

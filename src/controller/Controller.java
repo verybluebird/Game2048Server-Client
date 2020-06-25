@@ -1,5 +1,6 @@
 package controller;
 
+import model.Player;
 import model.Tile;
 import model.Model;
 import view.KeyView;
@@ -10,8 +11,9 @@ import java.awt.event.KeyEvent;
 
 
 public class Controller extends KeyAdapter {
-    private Model model;
-    private View view;
+
+    private final Model model;
+    private final View view;
 
     public Controller(Model model) {
         this.model = model;
@@ -25,7 +27,6 @@ public class Controller extends KeyAdapter {
     public int getScore() {
         return model.score;
     }
-
 
     public View getView() {
         return view;
